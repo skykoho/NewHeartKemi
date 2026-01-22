@@ -357,6 +357,15 @@ const layout = (title: string, content: string) => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="글로 마음을 정리하고, 비슷한 영혼과 느리게 이어지는 감정 커뮤니티">
   <title>${title} - HeartKemy</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#9370DB">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="HeartKemy">
+  <link rel="manifest" href="/static/manifest.json">
+  <link rel="apple-touch-icon" href="/static/icon-192.png">
+  
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
   <script>
@@ -421,6 +430,21 @@ const layout = (title: string, content: string) => {
       <p class="text-xs mt-2">© 2026 HeartKemy. All rights reserved.</p>
     </div>
   </footer>
+  
+  <!-- Service Worker 등록 -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js')
+          .then(registration => {
+            console.log('Service Worker registered:', registration);
+          })
+          .catch(error => {
+            console.log('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
 </body>
 </html>`
 }
