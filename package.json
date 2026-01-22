@@ -18,6 +18,7 @@
     "git:commit": "git add . && git commit -m"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.91.0",
     "hono": "^4.11.4"
   },
   "devDependencies": {

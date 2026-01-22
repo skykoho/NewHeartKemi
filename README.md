@@ -13,58 +13,15 @@
 - **느린 연결 (Slow Connection)**: 편지 중심의 비동기 소통
 - **감성적 경험 (Emotional Experience)**: 따뜻한 디자인과 UX
 
-## 🚀 현재 구현된 기능
+## 🚀 구현된 핵심 기능
 
-### ✅ 완료된 핵심 기능
-
-1. **홈/대시보드** (`/`)
-   - 이번 주 글쓰기 통계
-   - 최근 감정 패턴 분석
-   - 오늘의 질문 제시
-   - 빠른 액션 버튼
-
-2. **글쓰기** (`/write`)
-   - AI 생성 오늘의 질문
-   - 자유 형식 텍스트 입력 (최소 30자)
-   - 감정 키워드 선택 (최대 3개)
-   - 위치 정보 자동 수집
-   - 실시간 글자 수 카운터
-
-3. **AI 분석** (`/analysis`)
-   - 핵심 가치관 3개 추출
-   - 감정 톤 비율 분석 (5가지 감정)
-   - 주요 키워드 추출
-   - AI 인사이트 제공
-
-4. **감성 지도** (`/map`)
-   - Google Maps 기반 인터랙티브 지도
-   - 말풍선 형태 감정 글 마커
-   - 감정 유형별 필터링
-   - 실시간 포스트 렌더링
-   - 좋아요 기능
-
-5. **편지 시스템** (`/letters`)
-   - 편지 작성 (`/letters/compose`)
-   - 감정 키워드 첨부
-   - 종이비행기 비행 시간 계산 (20km/h)
-   - 받은/보낸 편지함
-
-6. **PWA 지원**
-   - Service Worker 등록
-   - Web App Manifest
-   - 오프라인 지원
-   - 홈 화면 추가 가능
-
-### 📊 데이터베이스 스키마
-
-- **users**: 사용자 정보
-- **posts**: 글 데이터
-- **emotion_keywords**: 감정 키워드 (15개)
-- **post_emotions**: 포스트-감정 연결
-- **ai_analyses**: AI 분석 결과
-- **letters**: 편지 데이터
-- **letter_emotions**: 편지-감정 연결
-- **likes**: 좋아요 데이터
+1. **홈/대시보드** - 감정 통계 및 빠른 액션
+2. **글쓰기** - AI 질문 생성, 감정 키워드 선택, 위치 수집
+3. **AI 분석** - 감정 톤 분석, 핵심 가치관 추출
+4. **감성 지도** - Google Maps, 말풍선 마커, 필터링
+5. **편지 시스템** - 편지 작성, 비행 시간 계산, 편지함
+6. **PWA** - Service Worker, 오프라인 지원
+7. **인증** - Supabase Auth (Google OAuth)
 
 ## 🛠 기술 스택
 
@@ -74,37 +31,90 @@
 - **Google Maps JavaScript API** - 지도 기능
 - **PWA** - Progressive Web App
 
-### Backend
+### Backend & Database
 - **Hono** - 경량 웹 프레임워크
-- **Cloudflare Workers** - 엣지 컴퓨팅 플랫폼
-- **Cloudflare D1** - SQLite 기반 분산 데이터베이스
+- **Supabase** - PostgreSQL 기반 Backend-as-a-Service
+  - PostgreSQL Database
+  - Authentication (Google OAuth)
+  - Row Level Security (RLS)
+  - Real-time subscriptions
 
 ### Development
 - **TypeScript** - 타입 안전성
 - **Vite** - 빌드 도구
-- **Wrangler** - Cloudflare CLI
-- **PM2** - 프로세스 관리
+- **Vercel** - 배포 플랫폼
 
 ## 📁 프로젝트 구조
 
 ```
 heartkemy/
 ├── src/
-│   ├── index.tsx           # 메인 애플리케이션 (API + HTML)
-│   └── renderer.tsx        # HTML 렌더러
+│   ├── index.tsx           # 메인 애플리케이션 (HTML 라우트)
+│   ├── api.tsx             # Supabase API 라우트
+│   └── lib/
+│       └── supabase.ts     # Supabase 클라이언트
 ├── public/
 │   └── static/
 │       ├── manifest.json   # PWA 매니페스트
 │       ├── sw.js           # Service Worker
 │       └── style.css       # 커스텀 스타일
-├── migrations/
-│   └── 0001_initial_schema.sql  # D1 마이그레이션
-├── seed.sql                # 시드 데이터
-├── ecosystem.config.cjs    # PM2 설정
-├── wrangler.jsonc          # Cloudflare 설정
+├── supabase/
+│   ├── schema.sql          # PostgreSQL 스키마
+│   └── seed.sql            # 시드 데이터
+├── .env.example            # 환경 변수 예시
 ├── package.json
 └── README.md
 ```
+
+## 🚦 Supabase 설정
+
+### 1. Supabase 프로젝트 생성
+
+1. https://supabase.com 접속
+2. "New Project" 클릭
+3. 프로젝트 이름, 데이터베이스 비밀번호 설정
+4. 리전 선택 (Northeast Asia - Seoul 권장)
+
+### 2. 데이터베이스 스키마 생성
+
+Supabase 대시보드에서:
+1. SQL Editor 열기
+2. `supabase/schema.sql` 파일 내용 복사
+3. 실행하여 테이블 생성
+
+### 3. 시드 데이터 삽입
+
+SQL Editor에서:
+1. `supabase/seed.sql` 파일 내용 복사
+2. 실행하여 기본 감정 키워드 삽입
+
+### 4. Google OAuth 설정
+
+Supabase 대시보드 > Authentication > Providers:
+1. Google 활성화
+2. Google Cloud Console에서 OAuth 2.0 클라이언트 ID 생성
+3. Authorized redirect URIs에 Supabase 콜백 URL 추가:
+   ```
+   https://[your-project-ref].supabase.co/auth/v1/callback
+   ```
+4. Client ID와 Client Secret을 Supabase에 입력
+
+### 5. 환경 변수 설정
+
+`.env` 파일 생성:
+```bash
+cp .env.example .env
+```
+
+`.env` 파일 편집:
+```env
+SUPABASE_URL=https://your-project-ref.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+GOOGLE_MAPS_API_KEY=your-google-maps-api-key
+OPENAI_API_KEY=your-openai-api-key
+```
+
+Supabase 대시보드 > Settings > API에서 URL과 anon key 확인
 
 ## 🚦 로컬 개발 환경 실행
 
@@ -114,56 +124,61 @@ heartkemy/
 npm install
 ```
 
-### 2. 데이터베이스 마이그레이션
+### 2. 환경 변수 설정
+
+위의 Supabase 설정 참고
+
+### 3. 개발 서버 시작
 
 ```bash
-npm run db:migrate:local
-npm run db:seed:local
+npm run dev
 ```
 
-### 3. 빌드
+### 4. 접속
+
+- 로컬: `http://localhost:5173`
+
+## 🌐 Vercel 배포
+
+### 1. Vercel CLI 설치
+
+```bash
+npm install -g vercel
+```
+
+### 2. Vercel 로그인
+
+```bash
+vercel login
+```
+
+### 3. 환경 변수 설정
+
+Vercel 대시보드에서:
+1. Project Settings > Environment Variables
+2. 다음 변수 추가:
+   - `SUPABASE_URL`
+   - `SUPABASE_ANON_KEY`
+   - `GOOGLE_MAPS_API_KEY` (선택)
+   - `OPENAI_API_KEY` (선택)
+
+### 4. 배포
 
 ```bash
 npm run build
+vercel --prod
 ```
 
-### 4. 개발 서버 시작
-
-```bash
-# PM2로 시작 (권장)
-pm2 start ecosystem.config.cjs
-
-# 또는 직접 실행
-npm run dev:sandbox
-```
-
-### 5. 접속
-
-- 로컬: `http://localhost:3000`
-- 공개 URL: https://3000-in9id8l4o3hsu9b6x0a73-2e1b9533.sandbox.novita.ai
-
-## 🌐 배포
-
-### Cloudflare Pages 배포
-
-```bash
-# 1. Cloudflare API 키 설정 (처음 한번만)
-# Deploy 탭에서 API 키 설정 필요
-
-# 2. D1 데이터베이스 생성
-npm run db:create
-
-# 3. 프로덕션 마이그레이션
-npm run db:migrate:prod
-
-# 4. 배포
-npm run deploy:prod
-```
+또는 GitHub 연동으로 자동 배포:
+1. GitHub 저장소와 Vercel 프로젝트 연결
+2. main 브랜치에 push하면 자동 배포
 
 ## 📝 주요 API 엔드포인트
 
-### 사용자
+### 인증
 - `GET /api/users/me` - 현재 사용자 정보
+- `POST /api/auth/google` - Google OAuth 로그인
+- `POST /api/auth/signout` - 로그아웃
 
 ### 포스트
 - `GET /api/posts` - 포스트 목록
@@ -181,27 +196,15 @@ npm run deploy:prod
 - `POST /api/letters` - 편지 전송
 - `GET /api/letters/inbox` - 받은 편지함
 
-## ⚠️ 미구현 기능
+## 🔒 보안 (Row Level Security)
 
-### 1. 인증 시스템
-- Google OAuth 연동 필요
-- 세션/JWT 관리
+Supabase는 PostgreSQL의 Row Level Security(RLS)를 사용하여 데이터 보안을 보장합니다:
 
-### 2. OpenAI GPT-4 연동
-- 실제 AI 분석 API 호출
-- 환경변수 설정 필요
-
-### 3. Google Maps API 키
-- 실제 지도 기능 작동을 위해 API 키 필요
-- `wrangler.jsonc`에 환경변수 추가
-
-### 4. 종이비행기 애니메이션
-- 실시간 비행 애니메이션 (GSAP)
-- 지도 상에서 움직이는 비행기
-
-### 5. 소울 탐색 (`/explore`)
-- 가치관 유사도 계산
-- 추천 알고리즘
+- **Users**: 모든 사용자 조회 가능, 본인만 수정 가능
+- **Posts**: 모든 포스트 조회 가능, 본인만 수정/삭제 가능
+- **Letters**: 발신자/수신자만 조회 가능
+- **AI Analyses**: 본인 분석만 조회 가능
+- **Likes**: 본인 좋아요만 관리 가능
 
 ## 🎨 디자인 시스템
 
@@ -209,11 +212,11 @@ npm run deploy:prod
 - **Primary**: `#9370DB` (Medium Purple)
 - **Accent**: `#FFD700` (Gold)
 - **Emotions**:
-  - 따뜻함: `#FFA500` (Orange)
-  - 위로: `#87CEEB` (Sky Blue)
-  - 설렘: `#9370DB` (Medium Purple)
-  - 고독: `#A9A9A9` (Dark Gray)
-  - 진심: `#FFD700` (Gold)
+  - 따뜻함: `#FFA500`
+  - 위로: `#87CEEB`
+  - 설렘: `#9370DB`
+  - 고독: `#A9A9A9`
+  - 진심: `#FFD700`
 
 ### 폰트
 - **본문**: Noto Sans KR
@@ -221,13 +224,19 @@ npm run deploy:prod
 
 ## 📈 다음 단계
 
-1. **Google OAuth 인증 구현**
-2. **OpenAI GPT-4 실제 연동**
-3. **Google Maps API 키 설정**
-4. **종이비행기 애니메이션 구현 (GSAP)**
-5. **소울 탐색 페이지 완성**
-6. **실시간 알림 시스템**
-7. **프로덕션 배포 및 테스트**
+1. ✅ Supabase 설정 및 연동
+2. ✅ Google OAuth 인증 구현
+3. ⏳ OpenAI GPT-4 실제 연동
+4. ⏳ Google Maps API 키 설정
+5. ⏳ 종이비행기 애니메이션 구현 (GSAP)
+6. ⏳ 실시간 알림 (Supabase Realtime)
+7. ⏳ 소울 탐색 페이지 완성
+
+## 🔗 링크
+
+- **GitHub**: https://github.com/skykoho/NewHeartKemi
+- **Supabase**: https://supabase.com
+- **Vercel**: https://vercel.com
 
 ## 📄 라이선스
 
@@ -235,4 +244,4 @@ npm run deploy:prod
 
 ---
 
-**💡 Tip**: 이 프로젝트는 Cloudflare Workers 환경에 최적화되어 있습니다. Node.js 런타임이나 파일 시스템 API는 사용하지 않습니다.
+**💡 Tip**: Supabase는 PostgreSQL 기반으로 강력한 쿼리, 실시간 기능, 파일 스토리지 등을 제공합니다.
